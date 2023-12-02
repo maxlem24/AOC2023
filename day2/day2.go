@@ -60,7 +60,30 @@ func part1(list []string) {
 	fmt.Println(sum)
 }
 
+func part2(list []string) {
+	sum := 0
+	for _, element := range list {
+		game := strings.Split(element, ":")
+		sets := strings.Split(game[1],";")
+		mapColor := map[string]int{"red":0,"green":1,"blue":2}
+		maxCubes := [3]int{0,0,0}
+		for _, set := range sets {
+			cubes := regexp.MustCompile("[0-9]+|red|green|blue").FindAllString(set,-1)
+			for i := 0; i < len(cubes); i+=2 {
+				value,_ := strconv.ParseInt(cubes[i],10,0)
+				maxValue := maxCubes[mapColor[cubes[i+1]]]
+				if int(value)>maxValue {
+					maxCubes[mapColor[cubes[i+1]]] = int(value)
+				}
+			}
+		}
+		sum+= maxCubes[0]*maxCubes[1]*maxCubes[2]
+	}
+	fmt.Println(sum)
+}
+
 func main() {
 	list := openFile()
 	part1(list)
+	part2(list)
 }
