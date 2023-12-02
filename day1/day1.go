@@ -52,7 +52,6 @@ func part2(list []string) {
 		ruleRegex += string(value) + "|"
 	}
 	ruleRegex = ruleRegex[:len(ruleRegex)-1]
-	fmt.Println(ruleRegex)
 	for _, element := range list {
 		firstValue := regexp.MustCompile(ruleRegex).FindString(element)
 		firstDigit := mapValue[firstValue]
