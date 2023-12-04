@@ -1,11 +1,11 @@
 package main
 
 import (
+	"fmt"
 	"os"
 	"regexp"
 	"strconv"
 	"strings"
-	"fmt"
 )
 
 func power(x int, y int) int {
@@ -27,7 +27,7 @@ func openFile() [][2][]int {
 		if string(buffer[i]) != "\n" {
 			line += string(buffer[i])
 		} else {
-			header := strings.Split(line,":")
+			header := strings.Split(line, ":")
 			split := strings.Split(header[1], "|")
 			winningString := ruleNumber.FindAllString(split[0], -1)
 			chosenString := ruleNumber.FindAllString(split[1], -1)
@@ -72,7 +72,33 @@ func part1(list [][2][]int) {
 	fmt.Println(sum)
 }
 
+func part2(list [][2][]int) {
+	sum := 0
+	matchs := make([]int, len(list))
+	for index, card := range list {
+		count := 0
+		for _, win := range card[0] {
+			for _, choice := range card[1] {
+				if win == choice {
+					count++
+				}
+			}
+		}
+		matchs[index] = count
+	}
+	numberCards := make([]int, len(list))
+	for i := 0; i < len(list); i++ {
+		numberCards[i]++ // Original Card
+		sum+= numberCards[i]
+		for j := 1; j <= matchs[i]; j++ {
+			numberCards[i+j]+= numberCards[i]
+		}
+	}
+	fmt.Println(sum)
+}
+
 func main() {
 	list := openFile()
 	part1(list)
+	part2(list)
 }
