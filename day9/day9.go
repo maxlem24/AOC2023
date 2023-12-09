@@ -66,7 +66,31 @@ func part1(report [][]int) {
 	fmt.Println(sum)
 }
 
+func part2(report [][]int) {
+	sum := 0
+	for _, history := range report {
+		pyramid := [][]int{history}
+		last := history
+		for !allZeros(last) {
+			line := make([]int, len(last)-1)
+			for i := 0; i < len(last)-1; i++ {
+				line[i] = last[i+1] - last[i]
+			}
+			pyramid = append(pyramid, line)
+			last = line
+		}
+		pyramid[len(pyramid)-1] = append(pyramid[len(pyramid)-1], 0)
+		for i := len(pyramid) - 2; i >= 0; i-- {
+			placeholder := pyramid[i][0] - pyramid[i+1][0]
+			pyramid[i] = append([]int{placeholder}, pyramid[i]...)
+		}
+		sum += pyramid[0][0]
+	}
+	fmt.Println(sum)
+}
+
 func main() {
 	report := openFile()
 	part1(report)
+	part2(report)
 }
