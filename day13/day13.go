@@ -30,19 +30,27 @@ func openFile() [][][]string {
 	return patterns
 }
 
-func isSameRow(row1 []string, row2 []string) bool {
+func isSameRow(row1 []string, row2 []string, smudgeRemaining *int) bool {
 	for i := 0; i < len(row1); i++ {
 		if row1[i] != row2[i] {
-			return false
+			if *smudgeRemaining != 0 {
+				*smudgeRemaining--
+			} else {
+				return false
+			}
 		}
 	}
 	return true
 }
 
-func isSameColumn(grid [][]string, index1 int, index2 int) bool {
+func isSameColumn(grid [][]string, index1 int, index2 int, smudgeRemaining *int) bool {
 	for i := 0; i < len(grid); i++ {
 		if grid[i][index1] != grid[i][index2] {
-			return false
+			if *smudgeRemaining != 0 {
+				*smudgeRemaining--
+			} else {
+				return false
+			}
 		}
 	}
 	return true
@@ -54,9 +62,10 @@ func part1(patterns [][][]string) {
 		height := len(pattern)
 		width := len(pattern[0])
 		addValue := 0
+		smudge := 0
 		for middleRow := 0; middleRow < height-1; middleRow++ {
 			row1, row2 := middleRow, middleRow+1
-			for row1 >= 0 && row2 < height && isSameRow(pattern[row1], pattern[row2]) {
+			for row1 >= 0 && row2 < height && isSameRow(pattern[row1], pattern[row2], &smudge) {
 				row1--
 				row2++
 			}
@@ -70,7 +79,7 @@ func part1(patterns [][][]string) {
 		} else {
 			for middleColumn := 0; middleColumn < width-1; middleColumn++ {
 				column1, column2 := middleColumn, middleColumn+1
-				for column1 >= 0 && column2 < width && isSameColumn(pattern, column1, column2) {
+				for column1 >= 0 && column2 < width && isSameColumn(pattern, column1, column2, &smudge) {
 					column1--
 					column2++
 				}
@@ -81,7 +90,45 @@ func part1(patterns [][][]string) {
 			}
 			sum += addValue
 		}
+	}
+	fmt.Println(sum)
+}
 
+func part2(patterns [][][]string) {
+	sum := 0
+	for _, pattern := range patterns {
+		height := len(pattern)
+		width := len(pattern[0])
+		addValue := 0
+		for middleRow := 0; middleRow < height-1; middleRow++ {
+			smudge := 1
+			row1, row2 := middleRow, middleRow+1
+			for row1 >= 0 && row2 < height && isSameRow(pattern[row1], pattern[row2], &smudge) {
+				row1--
+				row2++
+			}
+			if (row1 < 0 || row2 >= height) && smudge == 0 {
+				addValue = middleRow + 1
+				break
+			}
+		}
+		if addValue != 0 {
+			sum += addValue * 100
+		} else {
+			for middleColumn := 0; middleColumn < width-1; middleColumn++ {
+				column1, column2 := middleColumn, middleColumn+1
+				smudge := 1
+				for column1 >= 0 && column2 < width && isSameColumn(pattern, column1, column2, &smudge) {
+					column1--
+					column2++
+				}
+				if (column1 < 0 || column2 >= width) && smudge == 0 {
+					addValue = middleColumn + 1
+					break
+				}
+			}
+			sum += addValue
+		}
 	}
 	fmt.Println(sum)
 }
@@ -89,4 +136,5 @@ func part1(patterns [][][]string) {
 func main() {
 	patterns := openFile()
 	part1(patterns)
+	part2(patterns)
 }
