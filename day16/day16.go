@@ -8,7 +8,7 @@ import (
 type Direction int
 
 const (
-	Top   Direction = 0
+	Up   Direction = 0
 	Left  Direction = 1
 	Down  Direction = 2
 	Right Direction = 3
@@ -48,7 +48,7 @@ func newStack() stack {
 }
 
 func openFile() [][]string {
-	buffer, err := os.ReadFile("day16/test.txt")
+	buffer, err := os.ReadFile("day16/day16.txt")
 	if err != nil {
 		panic(err)
 	}
@@ -75,12 +75,17 @@ func contains(memory []node, x int, y int, dir Direction) bool {
 }
 
 func part1(contraption [][]string) {
+	value := findValue(0, 0, Right, contraption)
+	fmt.Println(value)
+}
+
+func findValue(beginX int, beginY int, beginDir Direction, contraption [][]string) int {
 	energized := make([][]string, len(contraption))
 	for i := 0; i < len(contraption); i++ {
 		energized[i] = make([]string, len(contraption[i]))
 	}
 	beam := newStack()
-	beam.push(0, 0, Right)
+	beam.push(beginX, beginY, beginDir)
 	memory := []node{}
 	for !beam.isEmpty() {
 		x, y, dir := beam.top()
@@ -93,13 +98,13 @@ func part1(contraption [][]string) {
 		switch contraption[y][x] {
 		case "/":
 			switch dir {
-			case Top:
+			case Up:
 				if x+1 < len(contraption[y]) {
 					beam.push(x+1, y, Right)
 				}
 			case Right:
 				if y-1 >= 0 {
-					beam.push(x, y-1, Top)
+					beam.push(x, y-1, Up)
 				}
 			case Down:
 				if x-1 >= 0 {
@@ -112,7 +117,7 @@ func part1(contraption [][]string) {
 			}
 		case "\\":
 			switch dir {
-			case Top:
+			case Up:
 				if x-1 >= 0 {
 					beam.push(x-1, y, Left)
 				}
@@ -126,7 +131,7 @@ func part1(contraption [][]string) {
 				}
 			case Left:
 				if y-1 >= 0 {
-					beam.push(x, y-1, Top)
+					beam.push(x, y-1, Up)
 				}
 			}
 		case "|":
@@ -136,11 +141,11 @@ func part1(contraption [][]string) {
 					beam.push(x, y+1, Down)
 				}
 				if y-1 >= 0 {
-					beam.push(x, y-1, Top)
+					beam.push(x, y-1, Up)
 				}
-			case Top:
+			case Up:
 				if y-1 >= 0 {
-					beam.push(x, y-1, Top)
+					beam.push(x, y-1, Up)
 				}
 			case Down:
 				if y+1 < len(contraption) {
@@ -149,7 +154,7 @@ func part1(contraption [][]string) {
 			}
 		case "-":
 			switch dir {
-			case Top, Down:
+			case Up, Down:
 				if x-1 >= 0 {
 					beam.push(x-1, y, Left)
 				}
@@ -167,9 +172,9 @@ func part1(contraption [][]string) {
 			}
 		case ".":
 			switch dir {
-			case Top:
+			case Up:
 				if y-1 >= 0 {
-					beam.push(x, y-1, Top)
+					beam.push(x, y-1, Up)
 				}
 			case Right:
 				if x+1 < len(contraption[y]) {
@@ -194,10 +199,36 @@ func part1(contraption [][]string) {
 			}
 		}
 	}
-	fmt.Println(sum)
+	return sum
+}
+
+func part2(contraption [][]string) {
+	max := 0
+	for x := 0; x < len(contraption[0]); x++ {
+		value := findValue(x, 0, Down, contraption)
+		if value > max {
+			max = value
+		}
+		value = findValue(x, len(contraption)-1, Up, contraption)
+		if value > max {
+			max = value
+		}
+	}
+	for y := 0; y < len(contraption); y++ {
+		value := findValue(0, y, Right, contraption)
+		if value > max {
+			max = value
+		}
+		value = findValue(len(contraption[y])-1, y, Left, contraption)
+		if value > max {
+			max = value
+		}
+	}
+	fmt.Println(max)
 }
 
 func main() {
 	contraption := openFile()
 	part1(contraption)
+	part2(contraption)
 }
